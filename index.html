@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>20 Cartas para Vale</title>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌻</text></svg>" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Parisienne&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <!-- Jardín progresivo en acuarela (brota 1 flor por carta leída) -->
+    <canvas class="watercolor-garden" id="watercolorGarden" aria-hidden="true"></canvas>
+
+    <!-- Capa ambiental sutil (pétalos en carta 20 y en el fondo de la caja) -->
+    <div class="petals-layer" id="petalsLayer" aria-hidden="true"></div>
+
+    <main class="stage" id="stage">
+
+        <!-- ===================================================
+             VISTA 1: CAJA CERRADA DE LINO
+             =================================================== -->
+        <section class="box-screen is-active" id="boxScreen" aria-label="Caja de 20 cartas para Vale">
+            <div class="box-intro-meta">
+                <span class="box-kicker">Un sobre por cada cumpleaños</span>
+            </div>
+
+            <button class="keepsake-box" id="keepsakeBox" type="button" aria-label="Abrir caja de cartas">
+                <div class="box-base">
+                    <div class="paper-grain"></div>
+                    <div class="box-inner-stack" aria-hidden="true">
+                        <span></span><span></span><span></span><span></span>
+                    </div>
+                </div>
+
+                <div class="box-lid" id="boxLid">
+                    <div class="paper-grain"></div>
+                    <div class="box-ribbon box-ribbon--v"></div>
+                    <div class="box-ribbon box-ribbon--h"></div>
+
+                    <div class="box-label-plate">
+                        <span class="box-label-title">Para Vale</span>
+                        <span class="box-label-sub">20 cartas · una historia que continúa</span>
+                    </div>
+
+                    <div class="wax-seal wax-seal--gold box-seal" aria-hidden="true">
+                        <span class="wax-seal-mark">🌻</span>
+                    </div>
+                </div>
+            </button>
+
+            <p class="box-hint">Toca la caja para abrirla</p>
+        </section>
+
+        <!-- ===================================================
+             VISTA 2: MAZO DE 20 SOBRES
+             =================================================== -->
+        <section class="deck-screen" id="deckScreen" aria-label="Explorar las 20 cartas" hidden>
+
+            <header class="deck-header">
+                <button class="text-btn" id="btnCloseBox" type="button" aria-label="Volver a la caja">
+                    ← Cerrar caja
+                </button>
+
+                <div class="deck-header-right">
+                    <button class="bottom-unlock-btn" id="btnOpenBottom" type="button" hidden>
+                        ✦ Fondo de la caja
+                    </button>
+                    <div class="deck-progress" id="readCounter">0 / 20 leídas</div>
+                </div>
+            </header>
+
+            <nav class="chapter-nav" id="chapterNav" aria-label="Capítulos"></nav>
+
+            <div class="deck-center">
+                <button class="deck-arrow deck-arrow--prev" id="btnPrevCard" type="button" aria-label="Carta anterior">
+                    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                        <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" fill="currentColor" />
+                    </svg>
+                </button>
+
+                <div class="deck-stage" id="deckStage">
+                    <div class="stack-ghost stack-ghost--3" aria-hidden="true"></div>
+                    <div class="stack-ghost stack-ghost--2" aria-hidden="true"></div>
+                    <div class="stack-ghost stack-ghost--1" aria-hidden="true"></div>
+
+                    <button class="deck-card" id="deckCard" type="button" aria-label="Abrir sobre seleccionado">
+                        <div class="paper-grain"></div>
+                        <div class="envelope-front-flap-shadow"></div>
+
+                        <div class="deck-card-top">
+                            <span class="deck-chapter-pill" id="deckChapterLabel">I. El comienzo</span>
+                            <span class="deck-postmark" id="deckPostmark">N.º 01 / 20</span>
+                        </div>
+
+                        <div class="deck-card-body">
+                            <span class="deck-script">Para Vale</span>
+                            <h2 class="deck-letter-title" id="deckLetterTitle">El primer cumpleaños que no conocía</h2>
+                        </div>
+
+                        <div class="deck-card-footer">
+                            <span class="deck-seal-dot" id="deckSealDot" aria-hidden="true"></span>
+                            <span class="deck-open-hint">toca el sobre para abrir</span>
+                            <span class="deck-read-badge" id="deckReadBadge" hidden>Leída ✓</span>
+                        </div>
+                    </button>
+                </div>
+
+                <button class="deck-arrow deck-arrow--next" id="btnNextCard" type="button" aria-label="Carta siguiente">
+                    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                        <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" fill="currentColor" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="deck-numbers" id="deckNumbers" aria-label="Seleccionar número de carta"></div>
+        </section>
+
+        <!-- ===================================================
+             VISTA 3: ANIMACIÓN 3D DEL SOBRE ACTIVO
+             =================================================== -->
+        <section class="envelope-stage" id="envelopeStage" aria-hidden="true">
+            <div class="envelope-wrap" id="envelopeWrap">
+                <div class="envelope" id="activeEnvelope">
+
+                    <div class="envelope-face envelope-front">
+                        <div class="envelope-clip">
+                            <div class="paper-grain"></div>
+                            <div class="envelope-front-flap-shadow"></div>
+                        </div>
+                        <div class="deck-card-top">
+                            <span class="deck-chapter-pill" id="envFrontChapter"></span>
+                            <span class="deck-postmark" id="envPostmark"></span>
+                        </div>
+                        <div class="deck-card-body">
+                            <span class="deck-script">Para Vale</span>
+                            <p class="deck-letter-title" id="envFrontTitle"></p>
+                        </div>
+                    </div>
+
+                    <div class="envelope-face envelope-back">
+                        <div class="envelope-back-bg">
+                            <div class="paper-grain"></div>
+                            <div class="envelope-back-seam envelope-back-seam--left"></div>
+                            <div class="envelope-back-seam envelope-back-seam--right"></div>
+                        </div>
+
+                        <div class="envelope-flap" id="envFlap">
+                            <div class="envelope-flap-shape">
+                                <div class="paper-grain"></div>
+                            </div>
+                            <div class="wax-seal" id="envSeal" aria-hidden="true">
+                                <span class="wax-seal-mark" id="envSealMark">✦</span>
+                            </div>
+                        </div>
+
+                        <div class="letter-slot" id="letterSlot">
+                            <article class="letter-sheet" id="letterSheet" aria-label="Carta manuscrita">
+                                <img class="letter-photo" id="letterImg" alt="Carta manuscrita para Vale" />
+
+                                <div class="letter-fallback" id="letterFallback" hidden>
+                                    <div class="letter-fallback-head">
+                                        <span id="fbNumber">Carta 01 / 20</span>
+                                    </div>
+                                    <p class="letter-fallback-chapter" id="fbChapter"></p>
+                                    <h3 class="letter-fallback-title" id="fbTitle"></h3>
+                                    <p class="letter-fallback-prompt" id="fbPrompt"></p>
+                                    <p class="letter-fallback-note" id="fbPathNote"></p>
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================================================
+             VISTA 4: MODO LECTURA (ZOOM NATIVO LIBRE)
+             =================================================== -->
+        <section class="reader-overlay" id="readerOverlay" aria-hidden="true">
+            <div class="reader-topbar" id="readerTopBar">
+                <span class="reader-meta" id="readerMeta">Carta 01 / 20</span>
+                <button class="reader-btn reader-btn--primary" id="btnPutBack" type="button">
+                    Guardar en el sobre
+                </button>
+            </div>
+
+            <div class="reader-scroll" id="readerScroll">
+                <div class="reader-canvas" id="readerCanvas"></div>
+            </div>
+        </section>
+
+        <!-- ===================================================
+             VISTA 5: EL FONDO DE LA CAJA (AL COMPLETAR 20/20)
+             =================================================== -->
+        <section class="bottom-screen" id="bottomScreen" aria-label="El fondo de la caja" hidden>
+            <header class="bottom-header">
+                <button class="text-btn" id="btnBackToDeck" type="button">
+                    ← Volver a los sobres
+                </button>
+                <span class="bottom-badge">20 / 20 completadas 🌻</span>
+            </header>
+
+            <div class="box-floor">
+                <div class="paper-grain"></div>
+
+                <!-- Encabezado y sello dorado -->
+                <div class="box-floor-top">
+                    <div class="wax-seal wax-seal--gold" aria-hidden="true">
+                        <span class="wax-seal-mark">🌻</span>
+                    </div>
+                    <span class="box-floor-kicker" id="bottomKicker">Debajo de los 20 sobres</span>
+                    <h2 class="box-floor-title" id="bottomTitle">Lo que quedó en el fondo de la caja</h2>
+                </div>
+
+                <!-- Tu nota final / posdata -->
+                <article class="postscript-card">
+                    <div class="postscript-body" id="bottomMessage"></div>
+                    <p class="postscript-sign" id="bottomSignature"></p>
+
+                    <figure class="postscript-art" id="bottomArtWrap" hidden>
+                        <img id="bottomArtImg" alt="Detalle guardado en el fondo de la caja" />
+                    </figure>
+                </article>
+
+                <!-- Cartas / notas de amigos (se oculta si FRIEND_NOTES está vacío) -->
+                <section class="friends-section" id="friendsSection" hidden>
+                    <div class="friends-head">
+                        <span class="friends-kicker">Sobres escondidos aquí abajo</span>
+                        <h3 class="friends-title" id="friendsHeading">Algunas personas también quisieron escribirte</h3>
+                    </div>
+                    <div class="friends-grid" id="friendsGrid"></div>
+                </section>
+
+                <!-- Enlace opcional (ej. hacia Universo de Vale) -->
+                <div class="box-floor-portal" id="bottomPortal" hidden>
+                    <p class="portal-text" id="bottomPortalText"></p>
+                    <a class="portal-btn" id="bottomPortalLink" href="#" target="_blank" rel="noopener noreferrer">
+                        Abrir sorpresa
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Modal de lectura para cartas de amigos (texto o foto escaneada) -->
+        <div class="friend-modal" id="friendModal" aria-hidden="true" hidden>
+            <div class="friend-modal-backdrop" id="friendModalBackdrop"></div>
+
+            <div class="friend-modal-shell" role="dialog" aria-modal="true" aria-labelledby="friendModalFrom">
+                <div class="friend-modal-bar">
+                    <div class="friend-modal-sender">
+                        <span class="friend-modal-from" id="friendModalFrom"></span>
+                        <span class="friend-modal-role" id="friendModalRole"></span>
+                    </div>
+                    <button class="reader-btn reader-btn--primary" id="btnCloseFriendModal" type="button">
+                        Guardar nota
+                    </button>
+                </div>
+
+                <div class="friend-modal-scroll">
+                    <article class="friend-paper" id="friendPaperText" hidden>
+                        <div class="friend-paper-content" id="friendModalText"></div>
+                    </article>
+
+                    <div class="friend-photo-wrap" id="friendPaperPhoto" hidden>
+                        <img class="letter-photo" id="friendModalImg" alt="Carta manuscrita de un amigo para Vale" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================================================
+             MINI REPRODUCTOR FLOTANTE CON LISTA DE CANCIONES
+             =================================================== -->
+        <aside class="mini-player" id="miniPlayer" aria-label="Mini reproductor de música">
+
+            <div class="mini-player-panel" id="miniPlayerPanel" hidden>
+                <div class="mini-player-head">
+                    <span class="mini-player-kicker" id="playerTrackNum">Pista 1 / 2</span>
+                    <button class="mini-icon-close" id="btnMinimize" type="button" aria-label="Minimizar reproductor">
+                        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                            <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" fill="currentColor" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="mini-player-meta">
+                    <span class="mini-song-title" id="playerSongTitle"></span>
+                    <span class="mini-song-artist" id="playerSongArtist"></span>
+                </div>
+
+                <div class="mini-controls">
+                    <button class="mini-ctrl-btn" id="btnPrevTrack" type="button" aria-label="Canción anterior">
+                        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                            <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" fill="currentColor" />
+                        </svg>
+                    </button>
+
+                    <button class="mini-ctrl-btn mini-ctrl-btn--play" id="btnPlayPause" type="button"
+                        aria-label="Reproducir">
+                        <svg id="iconPlay" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                            <path d="M8 5v14l11-7z" fill="currentColor" />
+                        </svg>
+                        <svg id="iconPause" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" hidden>
+                            <path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor" />
+                        </svg>
+                    </button>
+
+                    <button class="mini-ctrl-btn" id="btnNextTrack" type="button" aria-label="Siguiente canción">
+                        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                            <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" fill="currentColor" />
+                        </svg>
+                    </button>
+
+                    <button class="mini-list-toggle" id="btnToggleList" type="button" aria-expanded="false">
+                        Lista
+                    </button>
+                </div>
+
+                <div class="mini-progress-row">
+                    <span class="mini-time" id="timeCurrent">0:00</span>
+                    <div class="mini-progress-track" id="progressTrack">
+                        <div class="mini-progress-fill" id="progressFill"></div>
+                        <div class="mini-progress-thumb" id="progressThumb"></div>
+                    </div>
+                    <span class="mini-time" id="timeDuration">0:00</span>
+                </div>
+
+                <ul class="mini-tracklist" id="playerTrackList" hidden></ul>
+
+                <p class="mini-error" id="playerError" hidden>No se encontró el archivo de audio.</p>
+            </div>
+
+            <button class="mini-pill" id="playerToggle" type="button" aria-label="Abrir mini reproductor">
+                <span class="mini-pill-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18">
+                        <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"
+                            fill="currentColor" />
+                    </svg>
+                </span>
+                <span class="mini-pill-label" id="playerToggleLabel">Música</span>
+            </button>
+
+        </aside>
+
+        <audio id="audio" preload="none"></audio>
+
+    </main>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
